@@ -1,5 +1,5 @@
 {
-  "name": "kategray/dns-challenge-cloudflare",
+  "name": "mistial-dev/dns-challenge-cloudflare",
   "description": "Automatically performs DNS challenges with CloudFlare (for mod_md)",
   "minimum-stability": "stable",
   "license": "unlicense",
@@ -15,12 +15,12 @@
     }
   },
   "require": {
-    "symfony/console": "^5.3",
-    "cloudflare/sdk": "^1.2",
-    "symfony/config": "^5.3",
-    "consolidation/self-update": "^1.2",
-    "symfony/yaml": "^5.3",
-    "symfony/polyfill-mbstring": "^1.23"
+    "symfony/console": "^7.4",
+    "cloudflare/sdk": "^1.4",
+    "symfony/config": "^7.4",
+    "consolidation/self-update": "^3.1",
+    "symfony/yaml": "^7.4",
+    "symfony/polyfill-mbstring": "^1.33"
   },
   "require-dev": {
     "php": ">=8.0",

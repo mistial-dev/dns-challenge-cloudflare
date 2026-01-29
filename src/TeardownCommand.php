@@ -9,17 +9,16 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class TeardownCommand extends Command {
-    protected static $defaultName = 'teardown';
-
     protected function configure()
     {
         $this->setDescription ('Adds an ACME challenge to a CloudFlare zone')
+             ->setName('teardown')
              ->setHelp('This command takes the provided zone and acme domain, ' .
                 'makes an API call to Cloudflare, and deletes the required record.')
              ->addArgument('zone', InputArgument::REQUIRED,"Zone (domain name)");
     }
 
-    protected function execute(InputInterface $input, OutputInterface $output)
+    protected function execute(InputInterface $input, OutputInterface $output): int
     {
         $command = $this->getApplication()->find('setup');
 

@@ -20,7 +20,13 @@ dns:
     record_ttl:  120
 cloudflare:
     account: admin@xyz.zcloud
-    api_key: [API key from cloudflare.com]
+    api_key: [Global API key from cloudflare.com]
+```
+
+Or, prefer using an API token:
+```yaml
+cloudflare:
+    api_token: [API token from cloudflare.com]
   ```
 
 Configure apache for mod_md.  It should look something like this:

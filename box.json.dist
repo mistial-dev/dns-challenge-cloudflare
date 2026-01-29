@@ -2,7 +2,10 @@
     "main": "bin/dns-challenge",
     "output": "dist/dns-challenge.phar",
 
-    "directories": ["src"],
+    "directories": [
+        "src",
+        "vendor/symfony/console/Resources"
+    ],
     "finder": [
         {
             "name": "*.php",

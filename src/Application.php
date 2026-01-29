@@ -12,12 +12,13 @@ use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 use Symfony\Component\Config\Definition\Processor;
 use \Symfony\Component\Console\Application as SymfonyApplication;
 use \SelfUpdate\SelfUpdateCommand;
+use \SelfUpdate\SelfUpdateManager;
 use Symfony\Component\Yaml\Yaml;
 
 class Application extends SymfonyApplication {
     const APP_NAME = 'DNS Challenge Utility for Cloudflare(r)';
-    const APP_VERSION = '1.2';
-    const GITHUB_REPO = 'kategray/dns-challenge-cloudflare';
+    const APP_VERSION = '1.3';
+    const GITHUB_REPO = 'mistial-dev/dns-challenge-cloudflare';
     const APP_CONFIG = '/etc/dns-challenge.yml';
 
     private $_config = false;
@@ -29,8 +30,8 @@ class Application extends SymfonyApplication {
         parent::__construct(self::APP_NAME, self::APP_VERSION);
         $this->add(new SetupCommand());
         $this->add(new TeardownCommand());
-        $this->add(new SelfUpdateCommand(self::APP_NAME, self::APP_VERSION,
-            self::GITHUB_REPO));
+        $selfUpdateManager = new SelfUpdateManager(self::APP_NAME, self::APP_VERSION, self::GITHUB_REPO);
+        $this->add(new SelfUpdateCommand($selfUpdateManager));
     }
 
     /**

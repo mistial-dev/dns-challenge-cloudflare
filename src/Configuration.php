@@ -44,17 +44,38 @@ class Configuration implements ConfigurationInterface
             ->arrayNode('cloudflare')
                 ->children()
                     ->scalarNode('account')
-                        ->isRequired()
-                        ->cannotBeEmpty()
+                        ->defaultNull()
                     ->end()
                     ->scalarNode('api_key')
-                        ->isRequired()
-                        ->cannotBeEmpty()
+                        ->defaultNull()
+                    ->end()
+                    ->scalarNode('api_token')
+                        ->defaultNull()
                     ->end()
                 ->end()
             ->end()
         ->end();
 
+        $rootNode
+            ->validate()
+                ->ifTrue(static function ($v) {
+                    $cf = $v['cloudflare'] ?? [];
+                    $hasKey = !empty($cf['api_key']);
+                    $hasToken = !empty($cf['api_token']);
+                    $hasAccount = !empty($cf['account']);
+                    if ($hasToken && $hasKey) {
+                        return true;
+                    }
+                    if (!$hasToken && !$hasKey) {
+                        return true;
+                    }
+                    if ($hasKey && !$hasAccount) {
+                        return true;
+                    }
+                    return false;
+                })
+                ->thenInvalid('cloudflare config must include either api_token OR (account + api_key), but not both.')
+            ->end();
 
         return $treeBuilder;
     }
