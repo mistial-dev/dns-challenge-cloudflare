@@ -17,7 +17,7 @@ use Symfony\Component\Yaml\Yaml;
 
 class Application extends SymfonyApplication {
     const APP_NAME = 'DNS Challenge Utility for Cloudflare(r)';
-    const APP_VERSION = '1.3';
+    const APP_VERSION = '2.0';
     const GITHUB_REPO = 'mistial-dev/dns-challenge-cloudflare';
     const APP_CONFIG = '/etc/dns-challenge.yml';
 

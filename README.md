@@ -18,6 +18,12 @@ dns:
     record_name: _acme-challenge
     record_type: TXT
     record_ttl:  120
+    primary_dns: 8.8.8.8
+    query_timeout: 5
+    propagation_check: ipv4 # ipv4, ipv6, both, or none
+    propagation_timeout: 120
+    propagation_poll_interval: 2
+    propagation_fixed_delay: 0
 cloudflare:
     account: admin@xyz.zcloud
     api_key: [Global API key from cloudflare.com]
@@ -28,6 +34,10 @@ Or, prefer using an API token:
 cloudflare:
     api_token: [API token from cloudflare.com]
   ```
+
+Notes:
+- `propagation_check` defaults to `ipv4` (authoritative servers queried over IPv4 only).
+- Set `propagation_check: none` to skip DNS verification and use `propagation_fixed_delay` as a simple wait.
 
 Configure apache for mod_md.  It should look something like this:
 ```apacheconf
@@ -58,8 +68,8 @@ This software uses the cloudflare API to place and remove the challenge in DNS.
 
 ## License
 
-This software is in the public domain.  Included librariers are covered under
-their own licenses.  See LICENSE for details.
+This software is licensed under GPL-3.0-or-later. Included libraries are covered
+under their own licenses. See LICENSE for details.
 
 ## Trademark Notice
 

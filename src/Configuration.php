@@ -39,6 +39,30 @@ class Configuration implements ConfigurationInterface
                     ->integerNode('record_ttl')
                         ->defaultValue(120)
                     ->end()
+                    ->scalarNode('primary_dns')
+                        ->defaultValue('8.8.8.8')
+                        ->cannotBeEmpty()
+                    ->end()
+                    ->integerNode('query_timeout')
+                        ->defaultValue(5)
+                        ->min(1)
+                    ->end()
+                    ->scalarNode('propagation_check')
+                        ->defaultValue('ipv4')
+                        ->cannotBeEmpty()
+                    ->end()
+                    ->integerNode('propagation_timeout')
+                        ->defaultValue(120)
+                        ->min(0)
+                    ->end()
+                    ->integerNode('propagation_poll_interval')
+                        ->defaultValue(2)
+                        ->min(1)
+                    ->end()
+                    ->integerNode('propagation_fixed_delay')
+                        ->defaultValue(0)
+                        ->min(0)
+                    ->end()
                 ->end()
             ->end()
             ->arrayNode('cloudflare')
@@ -75,6 +99,31 @@ class Configuration implements ConfigurationInterface
                     return false;
                 })
                 ->thenInvalid('cloudflare config must include either api_token OR (account + api_key), but not both.')
+            ->end();
+
+        $rootNode
+            ->validate()
+                ->ifTrue(static function ($v) {
+                    $dns = $v['dns'] ?? [];
+                    $mode = $dns['propagation_check'] ?? 'ipv4';
+                    return !in_array($mode, ['ipv4', 'ipv6', 'both', 'none'], true);
+                })
+                ->thenInvalid('dns.propagation_check must be one of: ipv4, ipv6, both, none.')
+            ->end();
+
+        $rootNode
+            ->validate()
+                ->ifTrue(static function ($v) {
+                    $dns = $v['dns'] ?? [];
+                    $mode = $dns['propagation_check'] ?? 'ipv4';
+                    if ($mode !== 'none') {
+                        return false;
+                    }
+                    $fixed = (int) ($dns['propagation_fixed_delay'] ?? 0);
+                    $timeout = (int) ($dns['propagation_timeout'] ?? 0);
+                    return $fixed <= 0 && $timeout <= 0;
+                })
+                ->thenInvalid('dns.propagation_check=none requires propagation_fixed_delay or propagation_timeout to be > 0.')
             ->end();
 
         return $treeBuilder;

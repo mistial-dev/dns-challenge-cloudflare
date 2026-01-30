@@ -14,6 +14,10 @@ use \Cloudflare\API\Auth\APIToken;
 use \Cloudflare\API\Adapter\Guzzle;
 use \Cloudflare\API\Endpoints\DNS;
 use \Cloudflare\API\Endpoints\Zones;
+use KateGray\DnsChallenge\Dns\DnsPropagationWaiter;
+use KateGray\DnsChallenge\Dns\PhpDnsQueryFactory;
+use KateGray\DnsChallenge\Dns\SystemClock;
+use KateGray\DnsChallenge\Dns\SystemSleeper;
 use GuzzleHttp\Exception\RequestException;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Input\InputArgument;
@@ -21,8 +25,6 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Output\OutputInterface;
 
 class SetupCommand extends Command {
-    // Delay (in seconds) after sending command before returning to mod_md
-    protected const WAIT_DELAY = 5;
 
     protected function configure()
     {
@@ -54,9 +56,15 @@ class SetupCommand extends Command {
         $api_token   = $config['cloudflare']['api_token'];
             $record_name = $config['dns']['record_name'];
             $record_type = $config['dns']['record_type'];
-            $record_ttl  = $config['dns']['record_ttl'];
-            $zone_name   = $input->getArgument('zone');
-            $challenge   = $input->getArgument('challenge');
+        $record_ttl  = $config['dns']['record_ttl'];
+        $primary_dns = $config['dns']['primary_dns'];
+        $query_timeout = $config['dns']['query_timeout'];
+        $prop_check  = $config['dns']['propagation_check'];
+        $prop_timeout = $config['dns']['propagation_timeout'];
+        $prop_poll = $config['dns']['propagation_poll_interval'];
+        $prop_fixed_delay = $config['dns']['propagation_fixed_delay'];
+        $zone_name   = $input->getArgument('zone');
+        $challenge   = $input->getArgument('challenge');
 
         // Generate an auth object and instantiate the API endpoints
         if (!empty($api_token)) {
@@ -88,16 +96,27 @@ class SetupCommand extends Command {
                 $result = true;
             }
 
-            // Only add a new challenge if there is a challenge to add
-            if (false !== $challenge) {
-                // Create a new record
-                $result = $dns->addRecord($zone_id, $record_type, $record,
-                    $challenge, $record_ttl, false);
-            }
+        // Only add a new challenge if there is a challenge to add
+        if (false !== $challenge) {
+            // Create a new record
+            $result = $dns->addRecord($zone_id, $record_type, $record,
+                $challenge, $record_ttl, false);
 
-            // Pause here in order to give cloudflare a chance before exiting
-            // This helps keep mod_md from cycling too often while this propagages
-            sleep(self::WAIT_DELAY);
+            if (true === $result) {
+                $waiter = new DnsPropagationWaiter(
+                    new PhpDnsQueryFactory(),
+                    new SystemClock(),
+                    new SystemSleeper(),
+                    $primary_dns,
+                    $query_timeout,
+                    $prop_timeout,
+                    $prop_poll,
+                    $prop_check,
+                    $prop_fixed_delay
+                );
+                $waiter->waitForTxt($zone_name, $record, $challenge, $output);
+            }
+        }
 
             // True if both the challenge and delete succeed
             if (true === $result) {
@@ -117,4 +136,5 @@ class SetupCommand extends Command {
             throw $e;
         }
     }
+
 }

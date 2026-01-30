@@ -2,7 +2,7 @@
   "name": "mistial-dev/dns-challenge-cloudflare",
   "description": "Automatically performs DNS challenges with CloudFlare (for mod_md)",
   "minimum-stability": "stable",
-  "license": "unlicense",
+  "license": "GPL-3.0-or-later",
   "authors": [
     {
       "name": "Kate Gray",
@@ -14,16 +14,23 @@
       "KateGray\\DnsChallenge\\": "src/"
     }
   },
+  "autoload-dev": {
+    "psr-4": {
+      "KateGray\\DnsChallenge\\Tests\\": "tests/"
+    }
+  },
   "require": {
     "symfony/console": "^7.4",
     "cloudflare/sdk": "^1.4",
     "symfony/config": "^7.4",
     "consolidation/self-update": "^3.1",
     "symfony/yaml": "^7.4",
-    "symfony/polyfill-mbstring": "^1.33"
+    "symfony/polyfill-mbstring": "^1.33",
+    "purplepixie/phpdns": "^2.3"
   },
   "require-dev": {
     "php": ">=8.0",
-    "ext-mbstring": "*"
+    "ext-mbstring": "*",
+    "phpunit/phpunit": "^12.5"
   }
 }
